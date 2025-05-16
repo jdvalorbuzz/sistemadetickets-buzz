@@ -362,8 +362,19 @@ class TicketResource extends Resource
                     ->visible(fn () => auth()->check() && auth()->user()->isStaff()),
             ])
             ->actions([
+                // Acción para ver la previsualización (solo personal de soporte)
+                Tables\Actions\Action::make('preview')
+                    ->label('Ver Preview')
+                    ->color('info')
+                    ->icon('heroicon-o-eye')
+                    ->visible(fn () => auth()->check() && auth()->user()->role === 'support')
+                    ->url(fn (Ticket $record) => static::getUrl('preview', ['record' => $record])),
+                
                 Tables\Actions\EditAction::make()
-                    ->label(''),
+                    ->label('')
+                    // Ocultar la acción de editar para el personal de soporte
+                    ->visible(fn () => auth()->check() && auth()->user()->role !== 'support'),
+                
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->visible(fn () => auth()->check() && auth()->user()->isAdmin()),
@@ -389,6 +400,7 @@ class TicketResource extends Resource
             'index' => Pages\ListTickets::route('/'),
             'create' => Pages\CreateTicket::route('/create'),
             'edit' => Pages\EditTicket::route('/{record}/edit'),
+            'preview' => Pages\PreviewTicket::route('/{record}/preview'),
         ];
     }
     

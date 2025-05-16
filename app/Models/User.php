@@ -95,4 +95,76 @@ class User extends Authenticatable
     {
         return in_array($this->role, ['admin', 'super_admin', 'support']);
     }
+    
+    /**
+     * Verifica si el usuario tiene un permiso específico.
+     *
+     * @param string $permissionName
+     * @return bool
+     */
+    public function hasPermission(string $permissionName): bool
+    {
+        // Super Admin siempre tiene todos los permisos
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+        
+        // Buscar si existe el permiso para este rol
+        $hasPermission = RolePermission::whereHas('permission', function ($query) use ($permissionName) {
+            $query->where('name', $permissionName);
+        })->where('role', $this->role)->exists();
+        
+        return $hasPermission;
+    }
+    
+    /**
+     * Verifica si el usuario tiene alguno de los permisos especificados.
+     *
+     * @param array $permissions
+     * @return bool
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Verifica si el usuario tiene todos los permisos especificados.
+     *
+     * @param array $permissions
+     * @return bool
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if (!$this->hasPermission($permission)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Obtener todos los permisos del usuario.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function permissions()
+    {
+        return $this->belongsToMany(
+            Permission::class,
+            'role_permissions',
+            'role',
+            'permission_id',
+            'role',
+            'id'
+        );
+    }
 }

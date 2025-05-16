@@ -23,6 +23,12 @@ class Ticket extends Model
         'closed_at',
         'closed_by',
         'department_id', // Añadido campo para departamento
+        'assigned_to',   // Campo para usuario asignado
+        'email_subject', // Para integración con email
+        'email_message_id', // ID del mensaje de correo relacionado
+        'source',        // web, email, api
+        'kanban_status_id', // Para sistema Kanban
+        'kanban_order',     // Orden en la columna Kanban
     ];
 
     /**
@@ -98,6 +104,92 @@ class Ticket extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(TicketAttachment::class);
+    }
+    
+    /**
+     * Get the user assigned to this ticket.
+     */
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+    
+    /**
+     * Get the escalation logs for this ticket.
+     */
+    public function escalationLogs(): HasMany
+    {
+        return $this->hasMany(EscalationLog::class);
+    }
+    
+    /**
+     * Get the last activity (reply) for this ticket.
+     */
+    public function lastActivity()
+    {
+        return $this->hasOne(Reply::class)->latest();
+    }
+    
+    /**
+     * Check if ticket is eligible for escalation.
+     *
+     * @return bool
+     */
+    public function isEligibleForEscalation(): bool
+    {
+        // Verificar elegibilidad para escalar
+        return !in_array($this->status, ['closed', 'archived']);
+    }
+    
+    /**
+     * Obtener el último ID de mensaje de email relacionado con este ticket
+     * 
+     * @return string|null
+     */
+    public function getLastEmailMessageId()
+    {
+        return $this->replies()
+            ->whereNotNull('email_message_id')
+            ->latest()
+            ->value('email_message_id');
+    }
+    
+    /**
+     * Get the kanban status associated with the ticket.
+     */
+    public function kanbanStatus()
+    {
+        return $this->belongsTo(KanbanStatus::class);
+    }
+    
+    /**
+     * Get the time entries for this ticket.
+     */
+    public function timeEntries()
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+    
+    /**
+     * Get the total time in minutes spent on this ticket.
+     * 
+     * @return int
+     */
+    public function getTotalTimeAttribute()
+    {
+        return $this->timeEntries->sum('minutes');
+    }
+    
+    /**
+     * Get the total billable time in minutes spent on this ticket.
+     * 
+     * @return int
+     */
+    public function getTotalBillableTimeAttribute()
+    {
+        return $this->timeEntries
+            ->where('is_billable', true)
+            ->sum('minutes');
     }
     
     /**

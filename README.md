@@ -617,6 +617,168 @@ php artisan view:cache
 - **VPS/Dedicado**: Rendimiento óptimo con NGINX + PHP-FPM
 - **Docker**: Incluye Dockerfile y configuración docker-compose para despliegue containerizado
 
+## Funcionalidades Avanzadas (2025)
+
+El sistema incluye las siguientes funcionalidades avanzadas diseñadas para mejorar la eficiencia y experiencia en la gestión de tickets:
+
+### 1. Sistema de Escalamiento Automático
+
+Implementación de reglas de escalamiento para asegurar que los tickets sean atendidos en los tiempos establecidos:
+
+- **Estructura de Datos**:
+  - `EscalationRule`: Define condiciones para escalamiento automático por departamento/prioridad
+  - `EscalationLog`: Registra histórico de escalamientos con razones y usuarios involucrados
+
+- **Funcionamiento**:
+  ```php
+  // El sistema evalúa automáticamente cada 30 minutos
+  $rule = EscalationRule::where('department_id', $ticket->department_id)
+      ->where('priority', $ticket->priority)
+      ->where('is_active', true)
+      ->first();
+      
+  if ($timeSinceLastActivity >= $rule->hours_until_escalation) {
+      // Ejecuta escalamiento
+  }
+  ```
+
+- **Acceso y Permisos**:
+  - **Configuración**: Solo super_admin/admin puede crear reglas
+  - **Visualización**: Personal de soporte puede ver logs de escalamiento
+  - **Notificaciones**: Usuarios implicados reciben notificaciones automáticas
+
+### 2. Integración Bidireccional de Email
+
+Sistema que permite la creación y respuesta a tickets mediante correo electrónico:
+
+- **Configuración**:
+  - Múltiples buzones configurables por departamento
+  - Encriptación de credenciales sensibles
+  
+- **Funcionalidades**:
+  - **Tickets entrantes**: Conversión automática de emails a tickets
+  - **Respuestas**: Integración bidireccional que mantiene la conversación
+  - **Adjuntos**: Soporte para archivos adjuntos desde/hacia correos
+
+- **Procesamiento**:
+  ```php
+  // Job programado según intervalo de configuración
+  foreach($emailConfigs as $config) {
+      $schedule->job(new ProcessIncomingEmails($config->id))
+          ->cron("*/{$config->check_interval} * * * *");
+  }
+  ```
+
+### 3. Dashboard de Analítica Avanzada
+
+- **Métricas Calculadas**:
+  - Tiempos promedio de respuesta y resolución
+  - Distribución por departamento, prioridad y estado
+  - Evolución histórica de volumen de tickets
+  
+- **Visualización**:
+  - Gráficas temporales para tendencias
+  - Cuadros comparativos de eficiencia por agente
+  - Filtros dinámicos por periodo y categorías
+
+- **Optimización**:
+  - Procesamiento nocturno de métricas para rendimiento
+  - Agregaciones pre-calculadas para consultas rápidas
+
+### 4. Sistema de Colaboración con Menciones
+
+Permite mencionar a otros usuarios en respuestas para notificación inmediata:
+
+- **Estructura**:
+  - Modelo `Mention` con relación polimorfa a contenidos mencionables
+  - Soporte para menciones en tickets y respuestas
+
+- **Uso**:
+  ```
+  En esta respuesta quiero que @soporte revise la configuración del servidor.
+  ```
+
+- **Características**:
+  - Autocompletado de usuarios al escribir '@'
+  - Notificaciones instantáneas a mencionados
+  - Panel de seguimiento de menciones pendientes
+
+- **Permisos**:
+  - Los usuarios solo pueden mencionar a quienes tienen acceso al ticket
+  - Control granular desde MentionPolicy
+
+### 5. Sistema de Gestión de Tiempo y Tareas (Kanban)
+
+Combina gestión visual de tickets con registro detallado de tiempo:
+
+#### Tablero Kanban
+
+- **Personalización**:
+  - Estados configurables por departamento
+  - Colores y orden personalizables
+  - Vista filtrable por departamento/categoría
+
+- **Interactividad**:
+  - Arrastrar y soltar tickets entre estados
+  - Actualización en tiempo real del estado del ticket
+  - Indicadores visuales de prioridad y tiempo transcurrido
+
+#### Registro de Tiempo
+
+- **Capacidades**:
+  - Registro manual de tiempo dedicado por ticket
+  - Cronómetro integrado con inicio/pausa/fin
+  - Categorización de tiempo (facturado/no facturado)
+
+- **Reportes**:
+  - Tiempo total por cliente/proyecto
+  - Eficiencia de resolución por categoría
+  - Exportación para facturación
+
+- **Acceso**:
+  ```php
+  public function trackTime(User $user, Ticket $ticket): bool
+  {
+      // Solo personal interno puede registrar tiempo
+      return $user->isStaff();
+  }
+  ```
+
+## Credenciales del Sistema
+
+### Usuarios
+
+1. **Super Administrador**
+   - **Email**: superadmin@example.com
+   - **Contraseña**: password
+   - **Rol**: super_admin
+
+2. **Administrador**
+   - **Email**: admin@example.com
+   - **Contraseña**: password
+   - **Rol**: admin
+
+3. **Soporte Técnico**
+   - **Email**: soporte@example.com
+   - **Contraseña**: password
+   - **Rol**: support
+
+4. **Clientes**
+   - **Email**: cliente@example.com / juan@example.com
+   - **Contraseña**: password
+   - **Rol**: client
+
+### Departamentos
+
+1. **Soporte Técnico** (SOPORTE)
+2. **Atención al Cliente** (ATENCION)
+3. **Diseño y Creatividad** (DISENO)
+4. **Desarrollo de Software** (DEV)
+5. **Recursos Humanos** (RRHH)
+6. **Contabilidad y Finanzas** (FINANZAS)
+7. **Marketing** (MKT)
+8. **Operaciones** (OPS)
+
 ## Licencia
 
 Este software está licenciado bajo la [Licencia MIT](LICENSE).

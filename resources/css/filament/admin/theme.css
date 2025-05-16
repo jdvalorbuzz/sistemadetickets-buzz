@@ -1,0 +1,82 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+:root {
+    --primary-50: 255, 245, 242;
+    --primary-100: 255, 237, 231;
+    --primary-200: 254, 215, 199;
+    --primary-300: 253, 183, 160;
+    --primary-400: 252, 138, 109;
+    --primary-500: 250, 70, 25; /* Color principal #fa4619 */
+    --primary-600: 225, 61, 18;
+    --primary-700: 193, 44, 9;
+    --primary-800: 156, 35, 12;
+    --primary-900: 128, 30, 10;
+    --primary-950: 69, 11, 3;
+}
+
+/* Asegurarse de que todos los botones de acción principal usen el color correcto */
+.fi-btn-color-primary {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgba(250, 70, 25, var(--tw-bg-opacity)) !important;
+    --tw-border-opacity: 1 !important;
+    border-color: rgba(250, 70, 25, var(--tw-border-opacity)) !important;
+}
+
+.fi-btn-color-primary:hover, .fi-btn-color-primary:focus {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgba(225, 61, 18, var(--tw-bg-opacity)) !important;
+    --tw-border-opacity: 1 !important;
+    border-color: rgba(225, 61, 18, var(--tw-border-opacity)) !important;
+}
+
+/* Forzar el color de texto primario */
+.text-primary-600 {
+    --tw-text-opacity: 1 !important;
+    color: rgba(225, 61, 18, var(--tw-text-opacity)) !important;
+}
+
+/* Forzar el color de fondo primario */
+.bg-primary-500 {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgba(250, 70, 25, var(--tw-bg-opacity)) !important;
+}
+
+.bg-primary-600 {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgba(225, 61, 18, var(--tw-bg-opacity)) !important;
+}
+
+/* Forzar el color de hover de enlaces */
+.hover\:text-primary-500:hover {
+    --tw-text-opacity: 1 !important;
+    color: rgba(250, 70, 25, var(--tw-text-opacity)) !important;
+}
+
+/* Forzar el color de bordes */
+.border-primary-600 {
+    --tw-border-opacity: 1 !important;
+    border-color: rgba(225, 61, 18, var(--tw-border-opacity)) !important;
+}
+
+/* Anillos de focus */
+.ring-primary-600 {
+    --tw-ring-opacity: 1 !important;
+    --tw-ring-color: rgba(225, 61, 18, var(--tw-ring-opacity)) !important;
+}
+
+/* Fondos para elementos seleccionados */
+.fi-active, .fi-tabs-item-active {
+    background-color: rgba(250, 70, 25, 0.1) !important;
+    color: rgba(225, 61, 18, 1) !important;
+}
+
+/* Para las insignias */
+.fi-badge.fi-badge-color-primary {
+    --tw-bg-opacity: 1 !important;
+    background-color: rgba(250, 70, 25, var(--tw-bg-opacity)) !important;
+}
+
+/* Otros componentes de UI */
+.fi-toggle-input:checked + .fi-toggle-label {
+    background-color: rgba(250, 70, 25, 1) !important;
+}

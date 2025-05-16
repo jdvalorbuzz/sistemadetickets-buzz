@@ -30,6 +30,17 @@ class TicketPolicy
         // Clientes solo pueden ver sus propios tickets
         return $user->id === $ticket->user_id;
     }
+    
+    /**
+     * Determine whether the user can view the preview of a ticket.
+     * Este método es similar a view pero se usa específicamente para mostrar
+     * una vista previa sin opciones de edición.
+     */
+    public function viewPreview(User $user, Ticket $ticket): bool
+    {
+        // Todos los usuarios de soporte pueden ver la vista previa
+        return $this->view($user, $ticket);
+    }
 
     /**
      * Determine whether the user can create models.
@@ -81,5 +92,14 @@ class TicketPolicy
     {
         // Solo los administradores pueden eliminar permanentemente tickets
         return $user->isAdmin();
+    }
+    
+    /**
+     * Determine whether the user can track time on the ticket.
+     */
+    public function trackTime(User $user, Ticket $ticket): bool
+    {
+        // Solo el personal puede registrar tiempo en tickets
+        return $user->isStaff();
     }
 }
